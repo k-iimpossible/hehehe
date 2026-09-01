@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  accountId    String    @unique
+  passwordHash String
+  telegramId   String    @unique
+  role         String    @default("USER")
+  failedLogins Int       @default(0)
+  lockedUntil  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  flags    ServiceFlags?
+  sessions Session[]
+}
+
+model ServiceFlags {
+  id                 String @id @default(cuid())
+  userId             String @unique
+  user               User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  upwork             Boolean @default(false)
+  freelancer         Boolean @default(false)
+  outlier            Boolean @default(false)
+  handshake          Boolean @default(false)
+  snorkel            Boolean @default(false)
+  afterquery         Boolean @default(false)
+  meridial           Boolean @default(false)
+  mercor             Boolean @default(false)
+  micro1             Boolean @default(false)
+  alignerr           Boolean @default(false)
+  bankCreate         Boolean @default(false)
+  paypalCreate       Boolean @default(false)
+  payoneerCreate     Boolean @default(false)
+  documentEdit       Boolean @default(false)
+  personalInfoLookup Boolean @default(false)
+  drugTest           Boolean @default(false)
+  laptopHost         Boolean @default(false)
+  paypalRemoveHold   Boolean @default(false)
+  contactUs          Boolean @default(true)
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  ip        String?
+  userAgent String?
+}

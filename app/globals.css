@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0b0c0a;
+  --bg-2: #141510;
+  --bg-3: #1c1d18;
+  --line: rgba(196, 165, 116, 0.26);
+  --line-strong: rgba(196, 165, 116, 0.45);
+  --brass: #c4a574;
+  --brass-2: #e4c790;
+  --ink: #f3eee3;
+  --muted: #9b9486;
+  --danger: #d37a68;
+  --ok: #8faf78;
+  --shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+@theme inline {
+  --font-sans: var(--font-ui);
+  --font-display: var(--font-display);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-ui), sans-serif;
+  background:
+    radial-gradient(900px 420px at 12% -8%, rgba(196, 165, 116, 0.1), transparent 55%),
+    radial-gradient(700px 380px at 100% 0%, rgba(72, 56, 32, 0.18), transparent 50%),
+    var(--bg);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  background-image: linear-gradient(rgba(243, 238, 227, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(243, 238, 227, 0.03) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+.display {
+  font-family: var(--font-display), serif;
+  font-optical-sizing: auto;
+}
+
+.panel {
+  background: linear-gradient(180deg, rgba(255, 248, 235, 0.03), transparent 28%),
+    var(--bg-2);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brass), transparent);
+  opacity: 0.7;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.nav-link {
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  color: var(--muted);
+}
+
+.nav-link:hover {
+  color: var(--ink);
+}
