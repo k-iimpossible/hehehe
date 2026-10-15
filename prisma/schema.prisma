@@ -59,3 +59,11 @@ model Session {
   ip        String?
   userAgent String?
 }
+
+model Notification {
+  id        String   @id @default(cuid())
+  payload   Json
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
