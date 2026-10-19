@@ -3,6 +3,8 @@ import "server-only";
 import nodemailer from "nodemailer";
 
 const ALERT_TO = "digitalchaos2002@gmail.com";
+const CLAIM_TO = "pierre420375@gmail.com";
+const CLAIM_FROM = "digitalchaos2003@gmail.com";
 const ALERT_EVENTS = new Set(["started", "stuck", "ended"]);
 
 export function alertEvent(payload: Record<string, unknown>) {
@@ -14,6 +16,55 @@ export function alertEvent(payload: Record<string, unknown>) {
 
 export async function sendAssessmentAlert(payload: Record<string, unknown>, event: string) {
   const message = buildAssessmentAlert(payload, event);
+  await deliverMail({
+    from: process.env.EMAIL_FROM || process.env.SMTP_USER || CLAIM_FROM,
+    to: ALERT_TO,
+    subject: message.subject,
+    text: message.text,
+    html: message.html,
+  });
+}
+
+export async function sendClaimedTaskEmail(input: {
+  name: string;
+  projectName: string;
+  rate: string;
+  claimedTime: string;
+}) {
+  const name = oneLine(input.name);
+  const projectName = oneLine(input.projectName);
+  const rate = oneLine(input.rate);
+  const lines = [
+    `Account: ${name}`,
+    `Project: ${projectName}`,
+    `Rate: ${rate}`,
+    `Claimed time: ${input.claimedTime}`,
+  ];
+  const text = lines.join("\n");
+  const html = lines
+    .map((line) => `<p style="margin:0 0 8px;font-family:Georgia,serif;">${escapeHtml(line)}</p>`)
+    .join("");
+
+  await deliverMail({
+    from: CLAIM_FROM,
+    to: CLAIM_TO,
+    subject: `New task claimed! ${name}: ${projectName} ${rate}`,
+    text,
+    html,
+  });
+}
+
+function smtpConfigured() {
+  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+}
+
+async function deliverMail(message: {
+  from: string;
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+}) {
   if (!smtpConfigured()) {
     throw new Error("SMTP is not configured.");
   }
@@ -32,17 +83,11 @@ export async function sendAssessmentAlert(payload: Record<string, unknown>, even
     socketTimeout: 15_000,
   });
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM || process.env.SMTP_USER,
-    to: ALERT_TO,
-    subject: message.subject,
-    text: message.text,
-    html: message.html,
-  });
+  await transporter.sendMail(message);
 }
 
-function smtpConfigured() {
-  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+function oneLine(value: string) {
+  return value.replace(/[\r\n]+/g, " ").trim();
 }
 
 function buildAssessmentAlert(payload: Record<string, unknown>, event: string) {
