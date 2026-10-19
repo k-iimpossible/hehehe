@@ -27,19 +27,20 @@ export async function POST(request: Request) {
   }
 
   const payload = parsed.payload as Record<string, unknown>;
+  const email = text(payload.email);
   const name = text(payload.name);
   const projectName = text(payload.project_name);
   const rate = text(payload.rate);
   const claimedTime = typeof payload.claimed_time === "string" ? payload.claimed_time.trim() : "";
-  if (!name || !projectName || !rate || !parseJstTime(claimedTime)) {
+  if (!isEmail(email) || !name || !projectName || !rate || !parseJstTime(claimedTime)) {
     return notifyJson(
-      { error: "name, project_name, rate, and claimed_time are required. claimed_time is JST." },
+      { error: "email, name, project_name, rate, and claimed_time are required. claimed_time is JST." },
       400,
     );
   }
 
   try {
-    await sendClaimedTaskEmail({ name, projectName, rate, claimedTime });
+    await sendClaimedTaskEmail({ email, name, projectName, rate, claimedTime });
   } catch (error) {
     console.error("Claimed task email failed.", error);
     return notifyJson({ ok: true, emailSent: false });
@@ -52,4 +53,8 @@ function text(value: unknown) {
   if (typeof value === "string") return value.trim();
   if (typeof value === "number" && Number.isFinite(value)) return String(value);
   return "";
+}
+
+function isEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }

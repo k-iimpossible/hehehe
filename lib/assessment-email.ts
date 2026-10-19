@@ -3,7 +3,6 @@ import "server-only";
 import nodemailer from "nodemailer";
 
 const ALERT_TO = "digitalchaos2002@gmail.com";
-const CLAIM_TO = "pierre420375@gmail.com";
 const CLAIM_FROM = "digitalchaos2003@gmail.com";
 const ALERT_EVENTS = new Set(["started", "stuck", "ended"]);
 
@@ -26,6 +25,7 @@ export async function sendAssessmentAlert(payload: Record<string, unknown>, even
 }
 
 export async function sendClaimedTaskEmail(input: {
+  email: string;
   name: string;
   projectName: string;
   rate: string;
@@ -47,7 +47,7 @@ export async function sendClaimedTaskEmail(input: {
 
   await deliverMail({
     from: CLAIM_FROM,
-    to: CLAIM_TO,
+    to: oneLine(input.email),
     subject: `New task claimed! ${name}: ${projectName} ${rate}`,
     text,
     html,
