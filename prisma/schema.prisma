@@ -67,3 +67,40 @@ model Notification {
 
   @@index([createdAt])
 }
+
+model TritonNotification {
+  id                  Int      @id @default(autoincrement())
+  name                String
+  time                DateTime
+  createdAt           DateTime @default(now())
+  winnerAccount       String?
+  winnerSelected      Boolean  @default(false)
+  autoRefreshConsumed Boolean  @default(false)
+
+  deliveries   TritonDelivery[]
+  specialCalls TritonSpecialCall[]
+
+  @@index([createdAt])
+}
+
+model TritonDelivery {
+  id             Int                @id @default(autoincrement())
+  notificationId Int
+  accountName    String
+  createdAt      DateTime           @default(now())
+  notification   TritonNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, accountName])
+}
+
+model TritonSpecialCall {
+  id             Int                @id @default(autoincrement())
+  notificationId Int
+  accountName    String
+  startTime      DateTime
+  endTime        DateTime
+  receivedAt     DateTime           @default(now())
+  notification   TritonNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([notificationId])
+}
