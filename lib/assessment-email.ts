@@ -30,10 +30,12 @@ export async function sendClaimedTaskEmail(input: {
   projectName: string;
   rate: string;
   claimedTime: string;
+  claimed: boolean;
 }) {
   const name = oneLine(input.name);
   const projectName = oneLine(input.projectName);
   const rate = oneLine(input.rate);
+  const prefix = input.claimed ? "New task claimed!" : "New task available!";
   const lines = [
     `Account: ${name}`,
     `Project: ${projectName}`,
@@ -48,7 +50,7 @@ export async function sendClaimedTaskEmail(input: {
   await deliverMail({
     from: CLAIM_FROM,
     to: oneLine(input.email),
-    subject: `New task claimed! ${name}: ${projectName} ${rate}`,
+    subject: `${prefix} ${name}: ${projectName} ${rate}`,
     text,
     html,
   });

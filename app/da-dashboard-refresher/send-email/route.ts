@@ -32,15 +32,16 @@ export async function POST(request: Request) {
   const projectName = text(payload.project_name);
   const rate = text(payload.rate);
   const claimedTime = typeof payload.claimed_time === "string" ? payload.claimed_time.trim() : "";
-  if (!isEmail(email) || !name || !projectName || !rate || !parseJstTime(claimedTime)) {
+  const claimed = payload.claimed;
+  if (!isEmail(email) || !name || !projectName || !rate || !parseJstTime(claimedTime) || typeof claimed !== "boolean") {
     return notifyJson(
-      { error: "email, name, project_name, rate, and claimed_time are required. claimed_time is JST." },
+      { error: "email, name, project_name, rate, claimed, and claimed_time are required. claimed_time is JST." },
       400,
     );
   }
 
   try {
-    await sendClaimedTaskEmail({ email, name, projectName, rate, claimedTime });
+    await sendClaimedTaskEmail({ email, name, projectName, rate, claimedTime, claimed });
   } catch (error) {
     console.error("Claimed task email failed.", error);
     return notifyJson({ ok: true, emailSent: false });
